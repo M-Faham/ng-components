@@ -1,0 +1,48 @@
+<div
+  #fileUploader
+  class="d-flex flex-column align-items-center file-uploader"
+  (drop)="onFileDropped($event)"
+>
+  <input
+    type="file"
+    [accept]="allowedFormats()"
+    id="fileInput"
+    (change)="onFileSelected($event)"
+    hidden
+  />
+  <label
+    for="fileInput"
+    class="w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+  >
+    <img src="assets/imgs/svgs/upload.svg" alt="upload" class="w-fit" />
+    @if (!uploading()) {
+      <div class="mt-4">{{ 'fileUploader.description' | translate }}</div>
+      <div class="text-muted row">
+        <div class="w-fit px-2">
+          {{
+            'fileUploader.supportedFormat'
+              | translate: { formats: allowedFormats() }
+          }}
+        </div>
+        <div class="w-fit px-2">
+          {{ 'fileUploader.limit' | translate: { limit: maxSize() } }}
+        </div>
+      </div>
+    } @else {
+      <div
+        class="mt-4 fs-5 row w-100 justify-content-center align-items-center"
+      >
+        <div class="w-fit text-primary">
+          {{ 'fileUploader.uploading' | translate }}
+        </div>
+        <div class="uploading">
+          <div class="snippet" data-title="dot-falling">
+            <div class="stage">
+              <div class="dot-falling"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </label>
+</div>
