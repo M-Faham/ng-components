@@ -19,10 +19,7 @@ export class EncryptedUrlSerializer extends DefaultUrlSerializer {
 
   private encryptRouteParams(url: string): string {
     const urlParts = url.split('/');
-
-    // Encrypt route parameters if they are numeric
     for (let i = 1; i < urlParts.length; i++) {
-      // Start from 1 to skip the base path
       if (urlParts[i] && !isNaN(Number(urlParts[i]))) {
         urlParts[i] = this.cryptoService.encrypt(urlParts[i]);
       }
@@ -33,10 +30,8 @@ export class EncryptedUrlSerializer extends DefaultUrlSerializer {
   private decryptRouteParams(url: string): string {
     const urlParts = url.split('/');
 
-    // Decrypt route parameters if they are numeric
     for (let i = 1; i < urlParts.length; i++) {
-      // Start from 1 to skip the base path
-      if (urlParts[i] && this.cryptoService.isEncrypted(urlParts[i])) {
+      if (urlParts[i]) {
         urlParts[i] = this.cryptoService.decrypt(urlParts[i]);
       }
     }

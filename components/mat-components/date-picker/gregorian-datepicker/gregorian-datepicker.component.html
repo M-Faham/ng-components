@@ -1,0 +1,33 @@
+<!-- Variables: -->
+@let dateCtrl = dateForm.controls['date'];
+
+<form [formGroup]="dateForm">
+  <mat-form-field class="w-100" appearance="outline" (click)="open()">
+    <input
+      matInput
+      [class.ng-touched]="touched"
+      placeholder="{{ placeholder() }}"
+      formControlName="date"
+      (blur)="markAsTouched()"
+      [min]="min()"
+      [max]="max()"
+      [matDatepicker]="pickerGregorian"
+    />
+    @if (showSwitchToHijriIcon()) {
+      <mat-datepicker-toggle
+        (click)="switchToHijri(); $event.stopPropagation()"
+        matIconSuffix
+      >
+        <div class="text-toggler" matDatepickerToggleIcon>
+          <span class="text fw-bolder">ميلادي</span>
+        </div>
+      </mat-datepicker-toggle>
+    }
+    <mat-datepicker #pickerGregorian></mat-datepicker>
+    @if (dateCtrl && dateCtrl.errors) {
+      <mat-error>
+        {{ dateCtrl.errors | validationHandler }}
+      </mat-error>
+    }
+  </mat-form-field>
+</form>

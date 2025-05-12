@@ -1,0 +1,51 @@
+@import "variables";
+
+.file-upload {
+  position: relative;
+  display: inline-block;
+  position: relative;
+  display: inline-block;
+  padding: 0px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+input[type="file"] {
+  display: none; /* Hide the default file input */
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color:  $primary-900 !important;
+  color: #fff !important;
+  border-radius: 5px;
+  border: 1px solid #005c14;
+  transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+  background-color: #00b38c; /* Darker shade on hover */
+}
+
+span {
+  margin-left: 10px;
+  font-style: italic;
+}
+.file-name{
+  display: flex;
+
+  span{
+
+  }
+  button{
+    background: transparent;
+    border: none;
+    color: var(--bs-danger);
+    margin-inline-end: 15px;
+  }
+  &:last-of-type{
+    margin-bottom: 10px;
+  }
+}

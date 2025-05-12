@@ -1,0 +1,39 @@
+@if (
+  !(savedFiles.length >= maxFilesCount && maxFilesCount !== 0) && !viewOnly
+) {
+  <div class="file-upload btn btn-primary">
+    <input
+      #fileInput
+      type="file"
+      id="fileInput"
+      [accept]="acceptedFormats"
+      (change)="onFileSelected($event)"
+      [multiple]="multipleSelection"
+      [disabled]="isDisabled"
+    />
+    <label
+      for="fileInput"
+      class="custom-file-upload"
+      (click)="openFileExplorer(); $event.preventDefault()"
+    >
+      {{ message }}
+    </label>
+  </div>
+}
+
+@if (maxFilesCount !== 0) {
+  <div class="mt-1 mb-2">
+    <span>{{ 'shared.MaxFilesCount' | translate }} {{ maxFilesCount }}</span>
+  </div>
+}
+@if (savedFiles && savedFiles.length > 0) {
+  <div class="table-container mb-24">
+    <app-table-builder
+      [totalRecords]="savedFiles.length"
+      [dataSource]="savedFiles"
+      [columns]="filesGroup"
+      (downloadAttachmentClicked)="onDownload($event)"
+      (deleteClicked)="onDelete($event)"
+    ></app-table-builder>
+  </div>
+}

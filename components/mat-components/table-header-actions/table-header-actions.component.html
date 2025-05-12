@@ -1,0 +1,60 @@
+<div class="d-flex align-items-end justify-content-end mt-24 mb-24">
+  <button
+    mat-icon-button
+    class="border-0 bg-transparent text-success"
+    (click)="emitExportToPdf()"
+  >
+    <mat-icon svgIcon="pdf"></mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    class="border-0 bg-transparent text-success"
+    (click)="emitExportToExcel()"
+  >
+    <mat-icon svgIcon="excel"></mat-icon>
+  </button>
+
+  @if (showSelectAll()) {
+    <button
+      class="theme-button"
+      (click)="
+        toggleTableSelection.emit(allSelected());
+        allSelected.apply(!allSelected())
+      "
+    >
+      {{
+        (allSelected() ? 'buttons.unselectAll' : 'buttons.selectAll')
+          | translate
+      }}
+    </button>
+  }
+  @if (showAssign()) {
+    <button
+      class="theme-button"
+      [disabled]="!selectedItems()"
+      (click)="openAssignDialog.emit()"
+    >
+      {{ 'buttons.assignTheSelectedRequests' | translate }}
+    </button>
+  }
+  @if (showReassign()) {
+    <button
+      class="theme-button"
+      [disabled]="!selectedItems()"
+      (click)="openAssignDialog.emit()"
+    >
+      {{ 'buttons.reassignTheSelectedRequests' | translate }}
+    </button>
+  }
+
+  @if (showUnassign()) {
+    <button
+      class="theme-button"
+      [disabled]="!selectedItems()"
+      (click)="openUnassignDialog.emit()"
+    >
+      {{ 'buttons.unAssignTheSelectedRequests' | translate }}
+    </button>
+  }
+</div>

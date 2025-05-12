@@ -1,0 +1,153 @@
+<div class="d-flex align-items-center cursor-pointer">
+  @for (option of column().options; track $index) {
+    @if (condition()) {
+      @switch (option) {
+        @case ('edit') {
+          <img
+            mcActionPermission
+            [permissionKey]="column().actionsPermissions?.edit"
+            src="assets/imgs/edit.png"
+            alt="Edit"
+            width="24"
+            height="24"
+            (click)="!column().isDisabled ? clicked.emit(option) : ''"
+            class="cursor-pointer"
+            [ngClass]="{ 'disabled-action': column().isDisabled }"
+          />
+        }
+        @case ('delete') {
+          <button
+            [disabled]="column().isDisabled"
+            mat-icon-button
+            class="delete"
+            mcActionPermission
+            [permissionKey]="column().actionsPermissions?.delete"
+            (click)="clicked.emit(option)"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        }
+        @case ('deleteAttachments') {
+          <button
+            [disabled]="column().isDisabled"
+            mat-icon-button
+            class="delete"
+            (click)="clicked.emit(option)"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        }
+        @case ('view') {
+          <mat-icon
+            mcActionPermission
+            [permissionKey]="column().actionsPermissions?.view"
+            class="text-primary cursor-pointer"
+            (click)="clicked.emit(option)"
+          >
+            remove_red_eye
+          </mat-icon>
+        }
+        @case ('pick') {
+          <mat-icon (click)="clicked.emit(option)" class="text-primary">
+            done
+          </mat-icon>
+        }
+        @case ('study') {
+          <a
+            (click)="clicked.emit(option)"
+            class="view-details cursor-pointer text-primary"
+          >
+            <mat-icon>library_books</mat-icon>
+          </a>
+        }
+        @case ('downloadAttachment') {
+          @if (value()) {
+            <a
+              (click)="clicked.emit(option)"
+              class="cursor-pointer text-decoration-none text-primary"
+            >
+              <mat-icon>download</mat-icon>
+            </a>
+          } @else {
+            {{ 'shared.noAttachment' | translate }}
+          }
+        }
+        @case ('download') {
+          <a
+            mcActionPermission
+            [permissionKey]="column().actionsPermissions?.download"
+            (click)="clicked.emit(option)"
+            class="cursor-pointer text-decoration-none text-primary"
+          >
+            <mat-icon>download</mat-icon>
+          </a>
+        }
+        @case ('suspensionAuthorities') {
+          @if (value()) {
+            <mat-icon
+              class="text-primary cursor-pointer text-primary"
+              (click)="clicked.emit(option)"
+              >remove_red_eye</mat-icon
+            >
+          }
+        }
+        @case ('timeLine') {
+          <mat-icon
+            mcActionPermission
+            [permissionKey]="column().actionsPermissions?.timeLine"
+            class="text-primary cursor-pointer"
+            (click)="clicked.emit(option)"
+            >timeline</mat-icon
+          >
+        }
+        @case ('contract') {
+          <mat-icon
+            class="text-primary cursor-pointer"
+            (click)="clicked.emit(option)"
+          >
+            insert_drive_file</mat-icon
+          >
+        }
+        @case ('accreditation') {
+          <button class="theme-button py-2" (click)="clicked.emit(option)">
+            {{ 'actions.accreditation' | translate }}
+          </button>
+        }
+        @case ('reject') {
+          <button
+            class="theme-button btn-danger py-2"
+            (click)="clicked.emit(option)"
+          >
+            {{ 'actions.reject' | translate }}
+          </button>
+        }
+        @case ('accept') {
+          <mat-icon
+            class="text-primary cursor-pointer"
+            (click)="clicked.emit(option)"
+          >
+            check
+          </mat-icon>
+        }
+        @case ('takeAction') {
+          <mat-icon
+            class="text-primary cursor-pointer"
+            (click)="clicked.emit(option)"
+          >
+            person
+          </mat-icon>
+        }
+        @case ('confirmation') {
+          @if (value()) {
+            <mat-icon
+              class="text-primary cursor-pointer"
+              (click)="clicked.emit(option)"
+            >
+              receipt
+            </mat-icon>
+          }
+        }
+      }
+    }
+  }
+</div>

@@ -1,0 +1,344 @@
+<form [formGroup]="formGroup">
+  <div class="row" [ngClass]="{ 'justify-content-center': isJustifyCenter }">
+    @for (field of fields(); track field) {
+      <div
+        [ngClass]="
+          field.dependentOn && field.visible
+            ? field.cssClass
+            : field.dependentOn && !field.visible
+              ? formGroup.controls[field.dependentOn].value
+                ? field.cssClass
+                : ''
+              : field.cssClass
+        "
+      >
+        @if (
+          field.type &&
+          (!field.dependentOn ||
+            formGroup.controls[field.dependentOn].value === true)
+        ) {
+          @if (field.type && field.type !== InputType.blank) {
+            @if (field.type === InputType.startDate) {
+              <ng-container
+                *ngTemplateOutlet="
+                  labelTemplate;
+                  context: { field: field, classList: 'me-3 mb-3' }
+                "
+              ></ng-container>
+              <app-datepicker
+                matInput
+                [min]="field.minDate"
+                [max]="field.maxDate"
+                formControlName="{{ field.key }}"
+                id="{{ field.key }}"
+              />
+            } @else if (field.type === InputType.endDate) {
+              <ng-container
+                *ngTemplateOutlet="
+                  labelTemplate;
+                  context: { field: field, classList: 'me-3 mb-3' }
+                "
+              ></ng-container>
+              <app-datepicker
+                [min]="field.minDate"
+                [max]="field.maxDate"
+                matInput
+                formControlName="{{ field.key }}"
+                id="{{ field.key }}"
+              />
+            } @else if (field.type === InputType.Checkbox) {
+              <div class="px-3 d-flex flex-column">
+                <ng-container
+                  *ngTemplateOutlet="labelTemplate; context: { field: field }"
+                ></ng-container>
+                <mat-checkbox
+                  class="mt-3 mb-4"
+                  formControlName="{{ field.key }}"
+                  id="{{ field.key }}"
+                  (change)="onSelectChange($event, field)"
+                >
+                  {{
+                    (formGroup.controls[field.key].value
+                      ? 'general.yes'
+                      : 'general.no'
+                    ) | translate
+                  }}
+                </mat-checkbox>
+                <div class="error-con">
+                  <ng-container
+                    *ngTemplateOutlet="errorTemplate; context: { field: field }"
+                  ></ng-container>
+                </div>
+              </div>
+            } @else if (field.type === InputType.InlineCheckbox) {
+              <div class="px-3 d-flex flex-column">
+                <label for="{{ field.key }}">
+                  <mat-checkbox
+                    class="mt-3 mb-4"
+                    formControlName="{{ field.key }}"
+                    id="{{ field.key }}"
+                    (change)="onSelectChange($event, field)"
+                  >
+                    {{ field.label }}
+                    <span class="sub-label">{{ field.subLabel }}</span>
+                  </mat-checkbox>
+                </label>
+                <div class="error-con">
+                  <ng-container
+                    *ngTemplateOutlet="errorTemplate; context: { field: field }"
+                  ></ng-container>
+                </div>
+              </div>
+            } @else if (field.type === InputType.Chips) {
+              <div class="px-3">
+                <ng-container
+                  *ngTemplateOutlet="labelTemplate; context: { field: field }"
+                ></ng-container>
+                <mat-form-field
+                  class="w-100 mt-3"
+                  [ngClass]="
+                    formGroup.controls[field.key].disabled
+                      ? 'bg-secondary'
+                      : 'bg-white'
+                  "
+                  appearance="outline"
+                >
+                  <mat-chip-grid #chipGrid>
+                    @for (
+                      option of formGroup.controls[field.key].value;
+                      track $index
+                    ) {
+                      <mat-chip-row (removed)="removeChip(option, field)">
+                        {{ option[field.viewBy || 'nameAr'] }}
+                        @if (!field.notAllowedRemove) {
+                          <button
+                            matChipRemove
+                            [attr.aria-label]="'remove ' + option"
+                          >
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        }
+                      </mat-chip-row>
+                    }
+                  </mat-chip-grid>
+                  <input
+                    [ngClass]="{
+                      'd-none': formGroup.controls[field.key].disabled
+                    }"
+                    [formControl]="chipsFormGroup[field.key]"
+                    [disabled]="formGroup.controls[field.key]!.disabled"
+                    [placeholder]="field.placeholder ?? ''"
+                    [matChipInputFor]="chipGrid"
+                    [matAutocomplete]="auto"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    (matChipInputTokenEnd)="addChip($event, field)"
+                  />
+                  <mat-autocomplete
+                    #auto="matAutocomplete"
+                    (optionSelected)="selected($event, field)"
+                  >
+                    @for (option of filteredOptions(field); track $index) {
+                      <mat-option [value]="option">
+                        {{ option[field.viewBy || 'nameAr'] }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+                <div class="error-con">
+                  <ng-container
+                    *ngTemplateOutlet="errorTemplate; context: { field: field }"
+                  ></ng-container>
+                </div>
+              </div>
+            } @else {
+              <mat-form-field appearance="outline" class="w-100">
+                <ng-container
+                  *ngTemplateOutlet="labelTemplate; context: { field: field }"
+                ></ng-container>
+                @switch (field.type) {
+                  @case (InputType.Text) {
+                    <input
+                      matInput
+                      mcRegexValidator
+                      [regexPattern]="field.pattern || null"
+                      [ngClass]="{
+                        'border-danger':
+                          formGroup.controls[field.key].invalid &&
+                          formGroup.controls[field.key].touched
+                      }"
+                      [placeholder]="field.placeholder ?? ''"
+                      formControlName="{{ field.key }}"
+                      class="form-control"
+                      [type]="field.type"
+                      [attr.pattern]="field.pattern || null"
+                      [attr.minLength]="field.minLength"
+                      [attr.maxLength]="field.maxLength"
+                    />
+                  }
+                  @case (InputType.TextArea) {
+                    <textarea
+                      matInput
+                      mcRegexValidator
+                      [regexPattern]="field.pattern || null"
+                      [placeholder]="field.placeholder ?? ''"
+                      formControlName="{{ field.key }}"
+                      class="form-control"
+                      [attr.rows]="5"
+                      [attr.pattern]="field.pattern || null"
+                      [attr.minLength]="field.minLength"
+                      [attr.maxLength]="field.maxLength"
+                    ></textarea>
+                  }
+                }
+
+                @if (
+                  field.type === InputType.Dropdown ||
+                  field.type === InputType.SelectList ||
+                  field.type === InputType.MultiSelect
+                ) {
+                  <div class="custom-select-container">
+                    <mat-select
+                      formControlName="{{ field.key }}"
+                      class="custom-select form-control"
+                      [placeholder]="field.placeholder ?? ''"
+                      (selectionChange)="onSelectChange($event, field)"
+                      multiple="{{ field.type === InputType.MultiSelect }}"
+                    >
+                      @if (!field.isAll) {
+                        <mat-option [value]="null" disabled selected hidden>
+                          {{ field.placeholder }}
+                        </mat-option>
+                      }
+                      @if (field.isAll) {
+                        <mat-option [value]="null" selected>
+                          {{ 'formValidation.all' | translate }}
+                        </mat-option>
+                      }
+                      @if (field.selectAll) {
+                        @for (option of field.dropdownOptions; track $index) {
+                          <mat-option [value]="option" selected>
+                            {{ option }}
+                          </mat-option>
+                        }
+                      } @else {
+                        @for (option of field.dropdownOptions; track $index) {
+                          <mat-option
+                            [value]="
+                              field.dropdownValueProperty
+                                ? option[field.dropdownValueProperty]
+                                : option['id']
+                            "
+                          >
+                            {{ option[field.viewBy || 'nameAr'] }}
+                          </mat-option>
+                        }
+                      }
+                    </mat-select>
+                  </div>
+                }
+
+                @if (
+                  field.type === InputType.Number ||
+                  field.type === InputType.Decimal
+                ) {
+                  <input
+                    matInput
+                    mcRegexValidator
+                    [regexPattern]="field.pattern || null"
+                    [ngClass]="{
+                      'border-danger':
+                        formGroup.controls[field.key].invalid &&
+                        formGroup.controls[field.key].touched
+                    }"
+                    [placeholder]="field.placeholder ?? ''"
+                    formControlName="{{ field.key }}"
+                    (wheel)="$event.preventDefault()"
+                    class="form-control"
+                    [type]="field.type"
+                    [attr.pattern]="field.pattern || null"
+                    [attr.minLength]="field.minLength"
+                    [maxLength]="field.maxLength"
+                  />
+                  @if (formGroup.controls[field.key].errors) {
+                    <div class="text-danger error-msg">
+                      {{ getErrorMessage(field.key) }}
+                    </div>
+                  }
+                }
+
+                @if (formGroup.controls[field.key].errors) {
+                  <div class="text-danger error-msg">
+                    {{ getErrorMessage(field.key) }}
+                  </div>
+                }
+                <!-- Dropdown -->
+                <ng-container
+                  *ngTemplateOutlet="errorTemplate; context: { field: field }"
+                ></ng-container>
+              </mat-form-field>
+            }
+          }
+        }
+      </div>
+    }
+  </div>
+</form>
+<ng-template #errorTemplate let-field="field">
+  @if (formGroup.controls[field.key].errors) {
+    <div class="text-danger error-msg">
+      @if (
+        formGroup.controls[field.key].errors?.['required'] &&
+        formGroup.controls[field.key].touched
+      ) {
+        <div>{{ 'error.required' | translate }}</div>
+      }
+      @if (
+        formGroup.controls[field.key].errors?.['minlength'] &&
+        formGroup.controls[field.key].touched
+      ) {
+        <div>
+          {{ 'error.minLength' | translate }}
+          {{
+            formGroup.controls[field.key].errors?.['minlength'].requiredLength
+          }}.
+        </div>
+      }
+      @if (
+        formGroup.controls[field.key].errors?.['maxlength'] &&
+        formGroup.controls[field.key].touched
+      ) {
+        <div>
+          <!-- Maximum length exceeded, allowed length is -->
+          {{ 'error.maxLength' | translate }}
+          {{
+            formGroup.controls[field.key].errors?.['maxlength'].requiredLength
+          }}.
+        </div>
+      }
+      @if (
+        formGroup.controls[field.key].errors?.['pattern'] &&
+        formGroup.controls[field.key].touched
+      ) {
+        <div>
+          {{ formGroup.controls[field.key].errors?.['pattern'] | translate }}
+          <!-- {{ 'formValidation.invalidFormat' }} -->
+        </div>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #labelTemplate let-field="field" let-classList="classList">
+  <label [class]="classList">
+    {{ field?.label }}
+    @if (
+      field?.key &&
+      formGroup &&
+      formGroup.controls[field.key] &&
+      formGroup.controls[field.key].hasValidator(requiredValidator)
+    ) {
+      <span class="text-danger">*</span>
+    }
+    <span class="sub-label">{{ field?.subLabel }}</span>
+  </label>
+</ng-template>

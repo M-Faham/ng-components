@@ -1,0 +1,29 @@
+<form [formGroup]="dateRangeForm">
+  <mat-form-field class="w-100" appearance="outline">
+    <mat-date-range-input
+      (click)="open()"
+      [rangePicker]="pickerHijri"
+      [min]="min()"
+      [max]="max()"
+    >
+      <input
+        [placeholder]="placeholderFrom()"
+        matStartDate
+        formControlName="startDate"
+      />
+      <input
+        [placeholder]="placeholderTo()"
+        matEndDate
+        formControlName="endDate"
+      />
+    </mat-date-range-input>
+    @if (showSwitchToGregorianIcon()) {
+      <mat-datepicker-toggle (click)="switchToGregorian()" matIconSuffix>
+        <div class="text-toggler" matDatepickerToggleIcon>
+          <span class="text fw-bolder">هجري</span>
+        </div>
+      </mat-datepicker-toggle>
+    }
+    <mat-date-range-picker #pickerHijri></mat-date-range-picker>
+  </mat-form-field>
+</form>

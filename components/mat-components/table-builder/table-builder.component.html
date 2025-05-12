@@ -1,0 +1,227 @@
+@if (!dataSource || !dataSource?.length) {
+  <app-no-data-placeholder
+    [noData]="true"
+    [error]="false"
+  ></app-no-data-placeholder>
+} @else {
+  @if (tableHeader) {
+    <p class="section-title">
+      {{ tableHeader }}
+    </p>
+  }
+  <div class="header-actions">
+    @if (!isHidePagination && !hideTotalRecordsLabel) {
+      <div class="total-records">
+        <p>
+          {{ totalRecordsLabel | translate }}:
+          {{ totalRecords }}
+        </p>
+      </div>
+    }
+
+    <ng-content select="[actions]" />
+  </div>
+
+  <mat-table
+    [dataSource]="dataSourceTable"
+    matSort
+    (matSortChange)="announceSortChange($event)"
+    id="table"
+    #table
+  >
+    <!-- Row Number Column -->
+    <ng-container matColumnDef="rowNumber">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let row; let i = index">
+        @if (paginator && paginator.pageIndex && paginator.pageSize) {
+          {{ paginator.pageIndex * paginator.pageSize + i + 1 }}
+        } @else {
+          {{ i + 1 }}
+        }
+      </td>
+    </ng-container>
+    @if (hasSelectOption) {
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          @if (hasSelectAllOption) {
+            <mat-checkbox
+              (change)="$event ? toggleAllRows(isAllSelected()) : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+            >
+            </mat-checkbox>
+          } @else {
+            <span class="text-white">
+              {{ 'table.select' | translate }}
+            </span>
+          }
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? selectionChange(row) : null"
+            [checked]="selection.isSelected(row)"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
+    }
+
+    <!-- Dynamic Column Definitions -->
+    @for (column of columns(); track column; let i = $index) {
+      <ng-container [matColumnDef]="column.name">
+        @if (column.isSortable) {
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ column.header || column.name }}
+          </th>
+        } @else {
+          <th mat-header-cell *matHeaderCellDef>
+            {{ column.header || column.name }}
+          </th>
+        }
+        <td
+          mat-cell
+          *matCellDef="let row"
+          [class]="column.cssClasses"
+          [ngStyle]="{ width: column.width }"
+        >
+          @switch (column.type) {
+            @case ('text') {
+              <span>
+                {{ getValue(row, column) ?? row[column.name] | resolveValue }}
+              </span>
+            }
+
+            @case ('list') {
+              @if (row[column.name].length > 1) {
+                <div
+                  class="d-flex"
+                  matTooltipClass="table-list-tooltip"
+                  [matTooltip]="row[column.name] | TooltioListItems"
+                >
+                  {{ row[column.name][0] }}
+                  <mat-icon class="more-icon mx-2">more</mat-icon>
+                </div>
+              } @else if (row[column.name].length === 1) {
+                <span>
+                  {{ row[column.name][0] }}
+                </span>
+              }
+            }
+
+            @case ('link') {
+              <a
+                [routerLink]="getRouterLink(column, row)"
+                [queryParams]="
+                  column.queryParams ? column.queryParams(row) : null
+                "
+              >
+                {{ getValue(row, column) ?? row[column.name] | resolveValue }}
+              </a>
+            }
+
+            @case ('date') {
+              <span
+                [matTooltip]="
+                  (row[column.name] | date: 'yyyy/MM/dd')! | hijriDate
+                "
+              >
+                {{
+                  getValue(row, column) ?? row[column.name]
+                    | date: 'yyyy/MM/dd'
+                    | resolveValue
+                }}
+              </span>
+            }
+
+            @case ('enum') {
+              <span>{{ getColumnValue(row, column) | resolveValue }}</span>
+            }
+
+            @case ('lockup') {
+              @if (row[column.name] === null) {
+                <span>{{ 'table.noData' | translate }}</span>
+              } @else {
+                <span>
+                  {{ row[column.name][column.viewBy || 'nameAr' | translate] }}
+                </span>
+              }
+            }
+            @case ('status') {
+              <span
+                class="status-style"
+                [ngStyle]="{ 'background-color': row.statusColor }"
+                >{{ getValue(row, column) ?? row[column.name] | resolveValue }}
+              </span>
+            }
+
+            @case ('toggle') {
+              <mat-slide-toggle
+                mcActionPermission
+                [permissionKey]="column.actionsPermissions?.toggle"
+                [checked]="row[column.name]"
+                (change)="onToggleChange(row, $event, column)"
+              >
+              </mat-slide-toggle>
+            }
+
+            <!-- Action Column -->
+            @case ('action') {
+              <app-table-action-btn
+                [row]="row"
+                [column]="column"
+                (clicked)="onActionClicked($event, row, column)"
+              ></app-table-action-btn>
+            }
+          }
+        </td>
+      </ng-container>
+    }
+
+    <!-- Header Row -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+    <!-- Data Row -->
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </mat-table>
+}
+@if (
+  dataSource &&
+  !isHidePagination &&
+  ((totalRecords > dataSource.length &&
+    paginationType === PaginationType.Backend) ||
+    (paginationType === PaginationType.Frontend && totalRecords > pageSize))
+) {
+  <div class="table-footer">
+    <mat-paginator
+      #paginator
+      [ngClass]="{
+        'hide-page-size':
+          hidePageSize || paginationType === PaginationType.Frontend
+      }"
+      mcCustomTablePaginator
+      [length]="totalRecords"
+      [pageSize]="pageSize"
+      [pageIndex]="pageNumber - 1"
+      [pageSizeOptions]="pageSizeOptions"
+      [showFirstLastButtons]="true"
+      (page)="onPageChange($event)"
+      [showTotalPages]="totalRecords"
+    >
+    </mat-paginator>
+
+    @if (!hideSelectPageInput && paginationType === PaginationType.Backend) {
+      <div class="input-page">
+        <label>{{ 'labels.pageSelect' | translate }}</label>
+        <input
+          matInput
+          class="input form-control"
+          type="text"
+          [min]="minPage"
+          [(ngModel)]="pageNumber"
+          (keyup.enter)="goToSpecificPage($event)"
+        />
+      </div>
+    }
+  </div>
+}

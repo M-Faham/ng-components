@@ -1,0 +1,38 @@
+<div class="custom-datepicker">
+  <form [formGroup]="dateForm">
+    <div
+      [ngClass]="{
+        'd-block': !showHijriDate(),
+        'd-none': showHijriDate()
+      }"
+    >
+      <!-- Gregorian Datepicker -->
+      <app-gregorian-datepicker
+        #mcGregorianDatepicker
+        formControlName="gregorianDate"
+        [placeholder]="gregorianPlaceholder()"
+        [min]="min()"
+        [max]="max()"
+        [showSwitchToHijriIcon]="true"
+        (onSwitchToHijri)="switchToHijri()"
+      ></app-gregorian-datepicker>
+    </div>
+    <div
+      [ngClass]="{
+        'd-block': showHijriDate(),
+        'd-none': !showHijriDate()
+      }"
+    >
+      <!-- Hijri Datepicker -->
+      <app-hijri-datepicker
+        #mcDatepickerHijri
+        formControlName="hijriDate"
+        [placeholder]="hijriPlaceholder()"
+        [min]="min()"
+        [max]="max()"
+        [showSwitchToGregorianIcon]="true"
+        (onSwitchToGregorian)="switchToGregorian()"
+      ></app-hijri-datepicker>
+    </div>
+  </form>
+</div>

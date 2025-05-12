@@ -1,0 +1,87 @@
+@import 'variables';
+:host ::ng-deep {
+  th {
+    color: #fff;
+  }
+}
+
+.view-details {
+  color: $secondary-900;
+  text-decoration: underline;
+}
+
+.more-icon {
+  color: $secondary-900;
+}
+
+.mat-column-select {
+  overflow: initial;
+}
+
+.status-style {
+  color: #fff;
+  width: 80px;
+  height: 34px;
+  border-radius: 8px;
+  padding: 3.8px 22.2px;
+  display: inline-table;
+  width: max-content;
+}
+
+.total-records {
+  text-align: center;
+  background: #fff;
+  width: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.input-page {
+  order: 1;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-inline-end: 1rem;
+  input {
+    border: 1px solid $primary-400;
+    width: 40px;
+    text-align: center;
+  }
+  label {
+    width: fit-content;
+    flex: 1;
+    white-space: nowrap;
+  }
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-top-right-radius: 13px;
+  border-top-left-radius: 13px;
+  padding: 0 20px;
+}
+.disabled-action {
+  opacity: 0.5;
+  cursor: default;
+}
+
+// Paginator
+::ng-deep {
+  .mat-mdc-paginator-range-actions {
+    direction: rtl;
+    button.mat-mdc-paginator-navigation-first,
+    .mat-mdc-paginator-navigation-last {
+      transform: rotate(180deg);
+    }
+  }
+  .hide-page-size .mat-mdc-paginator-page-size {
+    display: none;
+  }
+}
