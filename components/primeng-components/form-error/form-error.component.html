@@ -1,0 +1,49 @@
+@let firstError = (control().errors | keyvalue)?.[0];
+
+@if (control().touched && firstError) {
+  <p class="error-message">
+    @switch (firstError?.key) {
+      @case ('required') {
+        {{ 'errors.field_required' | translate }}
+      }
+      @case ('email') {
+        {{ 'errors.patterns.invalid_email' | translate }}
+      }
+      @case ('emailTaken') {
+        {{ 'errors.email_taken' | translate }}
+      }
+      @case ('pattern') {
+        @if (patternKey()) {
+          {{ REGEX_PATTERNS[patternKey()!].error | translate }}
+        } @else {
+          {{ 'errors.patterns.invalid_input' | translate }}
+        }
+      }
+      @case ('minlength') {
+        {{
+          'errors.min_length'
+            | translate: { length: firstError?.value.requiredLength }
+        }}
+      }
+      @case ('maxlength') {
+        {{
+          'errors.max_length'
+            | translate: { length: firstError?.value.requiredLength }
+        }}
+      }
+      @case ('min') {
+        {{
+          'errors.min_value' | translate: { min: firstError?.value.min }
+        }}
+      }
+      @case ('max') {
+        {{
+          'errors.max_value' | translate: { max: firstError?.value.max }
+        }}
+      }
+      @case ('invalidSaudiIBAN') {
+        {{ 'errors.patterns.invalid_saudi_iban' | translate }}
+      }
+    }
+  </p>
+}
