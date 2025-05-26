@@ -11,14 +11,15 @@ export class SortedKeyValuePipe implements PipeTransform {
     if (!value || typeof value !== 'object') {
       return [];
     }
-    const sortedEntries = Object.entries(value).sort(([keyA], [keyB]) => {
-      if (order === 'asc') {
-        return keyA.localeCompare(keyB);
-      } else {
-        return keyB.localeCompare(keyA);
+    const sortedEntries = Object.entries(value).sort(
+      ([keyA, valueA], [keyB, valueB]) => {
+        if (order === 'asc') {
+          return valueB > valueA ? 1 : -1;
+        } else {
+          return valueA > valueB ? 1 : -1;
+        }
       }
-    });
-
+    );
     return sortedEntries.map(([key, val]) => ({ key, value: val }));
   }
 }
